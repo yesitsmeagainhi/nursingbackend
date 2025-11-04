@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { listChildren, updateNode, deleteNode, recursiveDelete, type NodeDoc } from "../api/firestore";
 import classNames from "classnames";
 
