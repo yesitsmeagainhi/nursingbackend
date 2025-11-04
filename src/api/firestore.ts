@@ -54,18 +54,21 @@ export async function getMaxOrder(parentId: string | null): Promise<number> {
   return items.length ? Math.max(...items.map(i => i.order ?? 0)) : 0;
 }
 
-export async function createNode(input: Omit<NodeDoc, "createdAt" | "updatedAt">): Promise<string> {
+// src/api/firestore.ts
+export async function createNode(
+  input: Omit<NodeDoc, 'createdAt' | 'updatedAt'>
+): Promise<string> {
   const now = serverTimestamp();
   const payload: NodeDoc = sanitize({
     ...input,
-    name_lowercase: input.name.toLowerCase(), // Automatically set lowercase name
+    name_lowercase: input.name.toLowerCase(),
     parentId: input.parentId ?? null,
-    createdAt: now,
-    updatedAt: now,
+    createdAt: now as any,        // ← cast
+    updatedAt: now as any,        // ← cast
   });
 
-  // files → enrich
-  if (payload.type !== "folder" && payload.url) {
+  // ----- file enrichment (unchanged) -----
+  if (payload.type !== 'folder' && payload.url) {
     payload.provider = detectProvider(payload.url);
     const { embedUrl, thumbUrl } = buildEmbedAndThumb(payload.url);
     if (embedUrl) payload.embedUrl = embedUrl;
@@ -76,35 +79,16 @@ export async function createNode(input: Omit<NodeDoc, "createdAt" | "updatedAt">
   return ref.id;
 }
 
-// Finds a node by its name within a specific parent folder.
-async function findNodeByName(name: string, parentId: string | null): Promise<NodeDoc | null> {
-  const q = query(
-    NODES(),
-    where("parentId", "==", parentId),
-    where("name", "==", name)
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) {
-    return null;
-  }
-  // Assuming name is unique within a parent
-  const doc = snap.docs[0];
-  return { id: doc.id, ...(doc.data() as NodeDoc) };
-}
-
-// This function now enriches the URL for videos and other links,
-// ensuring that updates also get the correct embed and thumbnail URLs.
-export async function updateNode(id: string, patch: Partial<NodeDoc>): Promise<void> {
-  const ref = doc(getDb(), "nodes", id);
+export async function updateNode(
+  id: string,
+  patch: Partial<NodeDoc>
+): Promise<void> {
+  const ref = doc(getDb(), 'nodes', id);
   const dataToUpdate: Partial<NodeDoc> = { ...patch };
 
-  // If name is being updated, also update name_lowercase
-  if (patch.name) {
-    dataToUpdate.name_lowercase = patch.name.toLowerCase();
-  }
+  if (patch.name) dataToUpdate.name_lowercase = patch.name.toLowerCase();
 
-  // If URL is being updated, re-enrich the data
-  if (patch.type !== "folder" && patch.url) {
+  if (patch.type !== 'folder' && patch.url) {
     dataToUpdate.provider = detectProvider(patch.url);
     const { embedUrl, thumbUrl } = buildEmbedAndThumb(patch.url);
     dataToUpdate.embedUrl = embedUrl || undefined;
@@ -114,7 +98,7 @@ export async function updateNode(id: string, patch: Partial<NodeDoc>): Promise<v
   const finalData = sanitize({
     ...dataToUpdate,
     parentId: patch.parentId === undefined ? undefined : (patch.parentId ?? null),
-    updatedAt: serverTimestamp(),
+    updatedAt: serverTimestamp() as any, // ← cast
   });
 
   await updateDoc(ref, finalData as any);
