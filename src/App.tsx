@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import FolderView from "./components/FolderView";
 import CreateModal from "./components/CreateModal";
 import BulkUploadModal from "./components/BulkUploadModal";
