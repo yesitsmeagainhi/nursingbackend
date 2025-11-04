@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { getDb } from '../firebase'; // your existing v9 Firestore init
 
