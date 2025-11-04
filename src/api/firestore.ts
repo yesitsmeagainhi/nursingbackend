@@ -54,21 +54,18 @@ export async function getMaxOrder(parentId: string | null): Promise<number> {
   return items.length ? Math.max(...items.map(i => i.order ?? 0)) : 0;
 }
 
-// src/api/firestore.ts
-export async function createNode(
-  input: Omit<NodeDoc, 'createdAt' | 'updatedAt'>
-): Promise<string> {
+export async function createNode(input: Omit<NodeDoc, "createdAt" | "updatedAt">): Promise<string> {
   const now = serverTimestamp();
   const payload: NodeDoc = sanitize({
     ...input,
-    name_lowercase: input.name.toLowerCase(),
+    name_lowercase: input.name.toLowerCase(), // Automatically set lowercase name
     parentId: input.parentId ?? null,
     createdAt: now as any,        // ← cast
     updatedAt: now as any,        // ← cast
   });
 
-  // ----- file enrichment (unchanged) -----
-  if (payload.type !== 'folder' && payload.url) {
+  // files → enrich
+  if (payload.type !== "folder" && payload.url) {
     payload.provider = detectProvider(payload.url);
     const { embedUrl, thumbUrl } = buildEmbedAndThumb(payload.url);
     if (embedUrl) payload.embedUrl = embedUrl;
@@ -79,16 +76,35 @@ export async function createNode(
   return ref.id;
 }
 
-export async function updateNode(
-  id: string,
-  patch: Partial<NodeDoc>
-): Promise<void> {
-  const ref = doc(getDb(), 'nodes', id);
+// Finds a node by its name within a specific parent folder.
+async function findNodeByName(name: string, parentId: string | null): Promise<NodeDoc | null> {
+  const q = query(
+    NODES(),
+    where("parentId", "==", parentId),
+    where("name", "==", name)
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) {
+    return null;
+  }
+  // Assuming name is unique within a parent
+  const doc = snap.docs[0];
+  return { id: doc.id, ...(doc.data() as NodeDoc) };
+}
+
+// This function now enriches the URL for videos and other links,
+// ensuring that updates also get the correct embed and thumbnail URLs.
+export async function updateNode(id: string, patch: Partial<NodeDoc>): Promise<void> {
+  const ref = doc(getDb(), "nodes", id);
   const dataToUpdate: Partial<NodeDoc> = { ...patch };
 
-  if (patch.name) dataToUpdate.name_lowercase = patch.name.toLowerCase();
+  // If name is being updated, also update name_lowercase
+  if (patch.name) {
+    dataToUpdate.name_lowercase = patch.name.toLowerCase();
+  }
 
-  if (patch.type !== 'folder' && patch.url) {
+  // If URL is being updated, re-enrich the data
+  if (patch.type !== "folder" && patch.url) {
     dataToUpdate.provider = detectProvider(patch.url);
     const { embedUrl, thumbUrl } = buildEmbedAndThumb(patch.url);
     dataToUpdate.embedUrl = embedUrl || undefined;
@@ -104,69 +120,36 @@ export async function updateNode(
   await updateDoc(ref, finalData as any);
 }
 
-// export async function deleteNode(id: string): Promise<void> {
-//   const ref = doc(getDb(), "nodes", id);
-//   await deleteDoc(ref);
-// }
 export async function deleteNode(id: string): Promise<void> {
-  const ref = doc(getDb(), "nodes", id);  // Reference to the Firestore document
-  await deleteDoc(ref);  // Deleting the document from Firestore
+  const ref = doc(getDb(), "nodes", id);
+  await deleteDoc(ref);
   console.log(`Document with ID ${id} deleted from Firestore.`);
 }
 
-// Recursive delete of a folder and all its descendants (use with confirmation)
-// export async function recursiveDelete(id: string): Promise<void> {
-//   const db = getDb();
-//   const ref = doc(db, "nodes", id);
-//   const snap = await getDoc(ref);
-//   if (!snap.exists()) return;
-
-//   const node = snap.data() as NodeDoc;
-//   if (node.type !== "folder") {
-//     await deleteDoc(ref);
-//     return;
-//   }
-//   // collect children
-//   const kids = await listChildren(id);
-//   // batch deletes (depth-first)
-//   for (const k of kids) {
-//     if (k.type === "folder") {
-//       await recursiveDelete(k.id!);
-//     } else {
-//       await deleteDoc(doc(db, "nodes", k.id!));
-//     }
-//   }
-//   await deleteDoc(ref);
-// }
 export async function recursiveDelete(id: string): Promise<void> {
   const db = getDb();
-  const ref = doc(db, "nodes", id);  // Firestore reference to the document
-  const snap = await getDoc(ref);  // Get the document snapshot
-  if (!snap.exists()) return;  // If the document doesn't exist, exit
+  const ref = doc(db, "nodes", id);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
 
   const node = snap.data() as NodeDoc;
   if (node.type !== "folder") {
-    await deleteDoc(ref);  // If it's not a folder, delete it
+    await deleteDoc(ref);
     return;
   }
 
-  // If it's a folder, delete all children first (depth-first)
   const children = await listChildren(id);
   for (const child of children) {
     if (child.type === "folder") {
-      await recursiveDelete(child.id!);  // Recursively delete child folders
+      await recursiveDelete(child.id!);
     } else {
-      await deleteDoc(doc(db, "nodes", child.id!));  // Delete individual files/nodes
+      await deleteDoc(doc(db, "nodes", child.id!));
     }
   }
-
-  // After deleting all children, delete the folder itself
   await deleteDoc(ref);
   console.log(`Folder with ID ${id} and all its contents deleted from Firestore.`);
 }
 
-// This is the core of the new logic. It now checks for existing nodes
-// before creating new ones.
 export async function bulkCreateNodes(
   data: any[],
   onProgress?: (percentage: number) => void
@@ -180,7 +163,6 @@ export async function bulkCreateNodes(
 
     let parentId: string | null = null;
 
-    // --- Part 1: Determine the Parent Folder ---
     if (path && typeof path === 'string' && path.trim()) {
       const pathParts = path.split('/');
       let currentPath = "";
@@ -192,8 +174,6 @@ export async function bulkCreateNodes(
           currentPath = folderPath;
         } else {
           const parentFolderId = pathIdCache.get(currentPath)!;
-
-          // Check if folder already exists in Firestore before creating
           let existingFolder = await findNodeByName(part, parentFolderId);
           if (existingFolder) {
             pathIdCache.set(folderPath, existingFolder.id!);
@@ -214,12 +194,10 @@ export async function bulkCreateNodes(
         }
       }
     } else {
-      parentId = null; // Item is at the root
+      parentId = null;
     }
 
-    // --- Part 2: Upsert (Update or Insert) the Node ---
     const existingNode = await findNodeByName(name, parentId);
-
     const payload: Partial<NodeDoc> = {
       type,
       order: Number(order) || 0,
@@ -228,10 +206,8 @@ export async function bulkCreateNodes(
     };
 
     if (existingNode) {
-      // If node exists, UPDATE it with the new data
       await updateNode(existingNode.id!, payload);
     } else {
-      // If node does not exist, CREATE it
       await createNode({ ...payload, name, parentId } as Omit<NodeDoc, "createdAt" | "updatedAt">);
     }
 
