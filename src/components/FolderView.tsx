@@ -47,14 +47,26 @@ export default function FolderView({
     }
   }
 
+  // async function onDelete(row: NodeDoc) {
+  //   const ask = row.type === "folder"
+  //     ? confirm(`Delete folder "${row.name}" and ALL its contents?`)
+  //     : confirm(`Delete "${row.name}"?`);
+  //   if (!ask) return;
+  //   if (row.type === "folder") await recursiveDelete(row.id!);
+  //   else await deleteNode(row.id!);
+  //   await load();
+  // }
   async function onDelete(row: NodeDoc) {
     const ask = row.type === "folder"
       ? confirm(`Delete folder "${row.name}" and ALL its contents?`)
       : confirm(`Delete "${row.name}"?`);
     if (!ask) return;
-    if (row.type === "folder") await recursiveDelete(row.id!);
-    else await deleteNode(row.id!);
-    await load();
+    if (row.type === "folder") {
+      await recursiveDelete(row.id!);  // Delete folder and its contents
+    } else {
+      await deleteNode(row.id!);  // Delete individual file or node
+    }
+    await load();  // Reload the folder after deletion
   }
 
   return (
@@ -114,7 +126,7 @@ export default function FolderView({
                       <a href={row.embedUrl || row.url} target="_blank" className="px-2 py-1 rounded bg-gray-200">Preview</a>
                     )}
                     <button className={classNames("px-2 py-1 rounded",
-                        editingId === row.id ? "bg-blue-600 text-white" : "bg-gray-200")}
+                      editingId === row.id ? "bg-blue-600 text-white" : "bg-gray-200")}
                       onClick={() => onRename(row)}>
                       {editingId === row.id ? "Save" : "Rename"}
                     </button>

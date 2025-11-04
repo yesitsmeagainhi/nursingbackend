@@ -10,16 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.24.0",
+    "@react-native-firebase/app": "^23.5.0",
+    "@react-native-firebase/firestore": "^23.5.0",
+    "@react-native-firebase/storage": "^23.5.0",
     "classnames": "^2.5.1",
-    "firebase": "^12.4.0",
+    "firebase": "^12.5.0",
+    "papaparse": "^5.5.3",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@react-native-community/cli": "^20.0.2",
     "@types/node": "^24.6.0",
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
+    "@types/react-native": "^0.72.8",
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.36.0",
@@ -28,7 +37,7 @@
     "globals": "^16.4.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
-    "typescript": "~5.9.3",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.45.0",
     "vite": "^7.1.7"
   }
