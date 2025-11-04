@@ -312,7 +312,7 @@
 // }
 
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createNode, getMaxOrder } from "../api/firestore";
 import { uploadBgImage } from "../utils/cloudinary"; // Utility for uploading image to Cloudinary
 
