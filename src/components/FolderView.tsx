@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
+// src/components/FolderView.tsx
 import { listChildren, updateNode, deleteNode, recursiveDelete, type NodeDoc } from "../api/firestore";
 import classNames from "classnames";
+import { previewHrefFromMeta } from "../utils/url";
 
 type Props = {
   parentId: string | null;
-  onEnterFolder?: (id: string, name: string) => void; // IMPORTANT: wire this from parent
+  onEnterFolder?: (id: string, name: string) => void;
   onCreateHere?: (parentId: string | null) => void;
   onCreateInside?: (parentId: string) => void;
-  refreshKey?: any; // bump to refresh
+  refreshKey?: any;
 };
 
 export default function FolderView({
@@ -47,26 +49,17 @@ export default function FolderView({
     }
   }
 
-  // async function onDelete(row: NodeDoc) {
-  //   const ask = row.type === "folder"
-  //     ? confirm(`Delete folder "${row.name}" and ALL its contents?`)
-  //     : confirm(`Delete "${row.name}"?`);
-  //   if (!ask) return;
-  //   if (row.type === "folder") await recursiveDelete(row.id!);
-  //   else await deleteNode(row.id!);
-  //   await load();
-  // }
   async function onDelete(row: NodeDoc) {
     const ask = row.type === "folder"
       ? confirm(`Delete folder "${row.name}" and ALL its contents?`)
       : confirm(`Delete "${row.name}"?`);
     if (!ask) return;
     if (row.type === "folder") {
-      await recursiveDelete(row.id!);  // Delete folder and its contents
+      await recursiveDelete(row.id!);
     } else {
-      await deleteNode(row.id!);  // Delete individual file or node
+      await deleteNode(row.id!);
     }
-    await load();  // Reload the folder after deletion
+    await load();
   }
 
   return (
@@ -122,14 +115,25 @@ export default function FolderView({
                           onClick={() => onCreateInside?.(row.id!)}>New inside</button>
                       </>
                     )}
+
                     {row.type !== "folder" && row.url && (
-                      <a href={row.embedUrl || row.url} target="_blank" className="px-2 py-1 rounded bg-gray-200">Preview</a>
+                      <a
+                        href={previewHrefFromMeta(row as any)}
+                        target="_blank"
+                        className="px-2 py-1 rounded bg-gray-200"
+                      >
+                        Preview
+                      </a>
                     )}
-                    <button className={classNames("px-2 py-1 rounded",
-                      editingId === row.id ? "bg-blue-600 text-white" : "bg-gray-200")}
-                      onClick={() => onRename(row)}>
+
+                    <button
+                      className={classNames("px-2 py-1 rounded",
+                        editingId === row.id ? "bg-blue-600 text-white" : "bg-gray-200")}
+                      onClick={() => onRename(row)}
+                    >
                       {editingId === row.id ? "Save" : "Rename"}
                     </button>
+
                     <button className="px-2 py-1 rounded bg-red-600 text-white" onClick={() => onDelete(row)}>
                       Delete
                     </button>
@@ -146,7 +150,7 @@ export default function FolderView({
 
 function Thumb({ row }: { row: NodeDoc }) {
   const isFolder = row.type === "folder";
-  const src = row.thumbUrl;
+  const src = (row as any).thumbUrl; // now comes from url.ts (YouTube only)
 
   if (isFolder) {
     return <div className="w-10 h-10 rounded bg-yellow-100 flex items-center justify-center">📁</div>;

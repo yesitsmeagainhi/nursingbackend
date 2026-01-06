@@ -2,7 +2,12 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-
+import {
+    getAuth,
+    setPersistence,
+    browserLocalPersistence,
+    GoogleAuthProvider,
+} from 'firebase/auth';
 // Your Firebase configuration object (replace with your actual config)
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FB_API_KEY,
@@ -18,6 +23,10 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firestore and Firebase Storage
 const firestoreInstance = getFirestore(app);
 const storageInstance = getStorage(app);
+// Auth with LOCAL persistence (survives browser restarts ~1yr)
+export const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(() => { });
 
+export const googleProvider = new GoogleAuthProvider();
 // Export instances for use in other files
 export { firestoreInstance, storageInstance };
