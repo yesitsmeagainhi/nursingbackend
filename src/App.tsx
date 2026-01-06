@@ -628,10 +628,8 @@ function AdminApp() {
 
   const { user, signOut } = useAuth();
 
-  const BASE =
-    import.meta.env.VITE_FCM_SENDER_URL ||
-    import.meta.env.VITE_FCM_SERVER_URL ||
-    "http://localhost:4000";
+    const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+;
 
   useEffect(() => {
     fetch(`${BASE}/api/fcm/ping`)
