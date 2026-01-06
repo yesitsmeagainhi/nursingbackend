@@ -54,7 +54,7 @@ export default function BulkUploadModal({ open, onClose, onComplete }: Props) {
       },
     });
   }
-  
+
   if (!open) return null;
 
   return (

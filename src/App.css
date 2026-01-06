@@ -1,7 +1,17 @@
-/* src/App.css */
-
+/* --- base --- */
 :root {
-  color-scheme: light;
+  --bg: #f7f8fb;
+  --panel: #ffffff;
+  --border: #e5e7eb;
+  --text: #0f172a;
+  --muted: #64748b;
+  --brand: #195ed2;
+  --brand-700: #154fb3;
+  --green: #10b981;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html,
@@ -12,23 +22,188 @@ body,
 
 body {
   margin: 0;
-  background: #f8fafc;
-  /* matches bg-slate-50 */
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-    Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol";
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* Remove Vite demo styles (centered text, spinning logos, etc.) */
-#root {
-  max-width: none;
-  padding: 0;
-  text-align: left;
+/* reset weird globals that make buttons full-width */
+button {
+  width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Optional: smooth card shadows if you add any custom cards later */
-.card {
+/* containers */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, .9);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar__row {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand__logo {
+  width: 28px;
+  height: 28px;
+  background: var(--brand);
+  border-radius: 8px;
+}
+
+.brand__text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__title {
+  font-weight: 700;
+}
+
+.brand__sep {
+  color: #cbd5e1;
+}
+
+.brand__section {
+  color: var(--muted);
+}
+
+/* tab bar */
+.tabbar {
+  border-top: 1px solid var(--border);
   background: #fff;
-  border: 1px solid #e5e7eb;
+}
+
+.tabbar__row {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: var(--text);
+  border: 1px solid transparent;
+}
+
+.tab:hover {
+  background: #e2e8f0;
+}
+
+.tab--active {
+  background: var(--brand);
+  color: #fff;
+}
+
+/* main */
+.main {
+  padding: 24px 0;
+  display: grid;
+  gap: 16px;
+}
+
+/* cards */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
   border-radius: 12px;
+  padding: 16px;
+}
+
+.card--light {
+  background: #fff;
+}
+
+/* buttons */
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.btn:hover {
+  background: #f8fafc;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+
+.btn-primary:hover {
+  background: var(--brand-700);
+}
+
+.btn-success {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.btn-ghost {
+  background: #fff;
+  color: var(--text);
+}
+
+/* small pieces */
+.toolbar {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.user-chip {
+  font-size: 12px;
+  color: var(--muted);
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+/* utilities used in code */
+.p-6 {
+  padding: 24px;
+}
+
+.text-muted {
+  color: var(--muted);
 }

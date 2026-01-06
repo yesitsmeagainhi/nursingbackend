@@ -1,13 +1,13 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react' // (Keep your existing plugins)
+import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
+// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  
-  // ADD THIS SECTION:
   server: {
-    host: '0.0.0.0', // This allows the app to be accessed externally
-    allowedHosts: ['nursingbackend-ooc7.onrender.com'], // This fixes the "Blocked request" error
+    port: 5173,
+    proxy: {
+      '/api/fcm': 'http://localhost:4000'
+    }
   }
 })

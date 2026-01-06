@@ -1,0 +1,11 @@
+[33macefe4c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mbackup-now[m[33m)[m HEAD@{Tue Jan 6 16:33:24 2026}: rebase (finish): returning to refs/heads/main
+[33macefe4c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mbackup-now[m[33m)[m HEAD@{Tue Jan 6 16:24:57 2026}: commit: Update on 06-01-2026
+[33mbe0de99[m HEAD@{Tue Jan 6 15:30:41 2026}: pull --rebase origin main (start): checkout be0de99ff98870e1016814c7b4e1813d1bacbf69
+[33m83ee711[m HEAD@{Tue Jan 6 15:29:25 2026}: commit: Initial commit
+[33m29295a6[m HEAD@{Thu Nov 6 18:35:30 2025}: commit: Update in Project files
+[33ma0c90cf[m HEAD@{Tue Nov 4 12:15:51 2025}: rebase (finish): returning to refs/heads/main
+[33ma0c90cf[m HEAD@{Tue Nov 4 12:15:51 2025}: rebase (pick): Remove .env from tracking and add to .gitignore
+[33m71de40e[m HEAD@{Tue Nov 4 12:15:51 2025}: rebase (start): checkout origin/main
+[33m545a47d[m HEAD@{Tue Nov 4 12:06:48 2025}: commit: Remove .env from tracking and add to .gitignore
+[33m453b5e5[m HEAD@{Tue Nov 4 11:57:14 2025}: commit: Update
+[33m62d5db2[m HEAD@{Wed Oct 15 16:48:49 2025}: clone: from https://github.com/yesitsmeagainhi/nursingbackend.git
