@@ -1,4 +1,3 @@
-import AddAnnouncementForm from './Announcements';
 import AnnouncementList from './AnnouncementList';
 
 export default function AnnouncementsPanel() {

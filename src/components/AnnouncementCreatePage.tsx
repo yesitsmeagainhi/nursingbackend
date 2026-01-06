@@ -137,7 +137,7 @@
 
 // export default AnnouncementCreatePage;
 // src/components/AnnouncementCreatePage.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { getDb } from '../firebase';
 import { sendAnnouncement, type AnnType } from '../services/announce';
