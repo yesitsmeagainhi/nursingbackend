@@ -1,4 +1,11 @@
+# Environment files
 .env
+src/server/.env
+
+# Secrets — never commit these
+keys/
+src/server/serviceAccounts.json
+**/serviceAccount*.json
 
 # Logs
 logs
@@ -9,13 +16,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
 *.local
-package.json
-package-lock.json
-
 
 # Editor directories and files
 .vscode/*
