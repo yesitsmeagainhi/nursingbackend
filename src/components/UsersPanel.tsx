@@ -20,7 +20,14 @@ export default function UsersPanel({ baseUrl }: { baseUrl: string }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string>("");
 
+
   async function load() {
+    if (!baseUrl) {
+      setRows([]);
+      setErr("Backend not connected. Set VITE_API_BASE_URL in Netlify.");
+      return;
+    }
+
     setLoading(true);
     setErr("");
     try {

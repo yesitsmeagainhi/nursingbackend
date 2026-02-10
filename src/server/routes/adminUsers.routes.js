@@ -55,30 +55,36 @@ router.get("/", async (req, res) => {
     try {
         if (!isAdmin(req.user)) return res.status(403).send("Forbidden");
 
-        const snap = await admin
-            .firestore()
-            .collection("profiles")
-            .orderBy("createdAt", "desc")
-            .limit(200)
-            .get();
+        // Build a map of Firestore profiles keyed by uid
+        const snap = await admin.firestore().collection("profiles").limit(1000).get();
+        const profilesByUid = new Map();
+        for (const d of snap.docs) {
+            const x = d.data() || {};
+            if (x.uid) profilesByUid.set(x.uid, { ...x, id: d.id });
+        }
 
-        const users = snap.docs
-            .map((d) => {
-                const x = d.data() || {};
-                return {
-                    id: d.id,
-                    uid: x.uid || null,
-                    phone: x.phone || d.id,
-                    email: x.email || null,
-                    name: x.name || null,
-                    courseName: x.courseName || "",
-                    createdAt: x.createdAt?.toDate ? x.createdAt.toDate().toISOString() : null,
-                };
-            })
-            .filter((u) => (u.email || "").toLowerCase().endsWith(EMAIL_SUFFIX));
+        // List all users from Firebase Auth
+        const allUsers = [];
+        let nextPageToken;
+        do {
+            const listResult = await admin.auth().listUsers(1000, nextPageToken);
+            allUsers.push(...listResult.users);
+            nextPageToken = listResult.pageToken;
+        } while (nextPageToken);
 
-        console.log("[LIST USERS] filtering by:", EMAIL_SUFFIX, "found:", users.length);
-res.setHeader("X-Users-Route-Version", "users-route-v3-phoneuser-filter");
+        const users = allUsers.map((u) => {
+            const profile = profilesByUid.get(u.uid) || {};
+            return {
+                uid: u.uid,
+                phone: profile.phone || u.phoneNumber || null,
+                email: u.email || profile.email || null,
+                name: profile.name || u.displayName || null,
+                courseName: profile.courseName || "",
+                createdAt: u.metadata?.creationTime || null,
+            };
+        });
+
+        console.log("[LIST USERS] Auth users:", allUsers.length, "Profiles:", snap.size);
 
         return res.json({ ok: true, users });
     } catch (e) {

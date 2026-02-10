@@ -173,22 +173,27 @@ const PORT = process.env.PORT || 4000;
 function initFirebaseAdmin() {
     if (admin.apps.length) return;
 
-    // Option A: GOOGLE_APPLICATION_CREDENTIALS points to serviceAccountKey.json
-    // Option B: Put SERVICE_ACCOUNT_PATH in .env
-    const saPath =
-        process.env.SERVICE_ACCOUNT_PATH ||
-        process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    let serviceAccount;
 
-    if (!saPath) {
-        throw new Error(
-            "Missing SERVICE_ACCOUNT_PATH or GOOGLE_APPLICATION_CREDENTIALS in .env"
-        );
-    }
-    if (!fs.existsSync(saPath)) {
-        throw new Error(`Service account file not found: ${saPath}`);
-    }
+    // Option A: JSON string in env var (for Render / cloud deploys)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    } else {
+        // Option B: Local file path
+        const saPath =
+            process.env.SERVICE_ACCOUNT_PATH ||
+            process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
-    const serviceAccount = JSON.parse(fs.readFileSync(saPath, "utf8"));
+        if (!saPath) {
+            throw new Error(
+                "Missing FIREBASE_SERVICE_ACCOUNT_JSON or SERVICE_ACCOUNT_PATH in env"
+            );
+        }
+        if (!fs.existsSync(saPath)) {
+            throw new Error(`Service account file not found: ${saPath}`);
+        }
+        serviceAccount = JSON.parse(fs.readFileSync(saPath, "utf8"));
+    }
 
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),

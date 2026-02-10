@@ -39,6 +39,11 @@ export default function UserCreatePage({
   };
 
   async function createUser() {
+    if (!baseUrl) {
+      setErr("Backend not connected. Set VITE_API_BASE_URL in Netlify.");
+      return;
+    }
+
     if (!canSubmit) {
       if (!isValidPhone) setErr("Enter a valid 10-digit mobile number.");
       else if (!isValidPassword) setErr("Password must be at least 6 characters.");

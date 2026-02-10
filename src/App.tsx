@@ -628,10 +628,23 @@ function AdminApp() {
 
   const { user, signOut } = useAuth();
 
-    const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+  const BASE =
+    import.meta.env.VITE_FCM_SENDER_URL ||
+    import.meta.env.VITE_FCM_SERVER_URL ||
+    "http://localhost:4000";
 
 
+  // const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+  // const BASE = import.meta.env.VITE_API_BASE_URL || "";
+
+  // useEffect(() => {
+  //   fetch(`${BASE}/api/fcm/ping`)
+  //     .then((r) => r.json())
+  //     .then((j) => console.log("[PING]", j))
+  //     .catch((e) => console.log("[PING error]", e));
+  // }, [BASE]);
   useEffect(() => {
+    if (!BASE) return; // ✅ don't ping if backend not configured
     fetch(`${BASE}/api/fcm/ping`)
       .then((r) => r.json())
       .then((j) => console.log("[PING]", j))
@@ -655,12 +668,12 @@ function AdminApp() {
     tab === "explorer"
       ? "Content Explorer"
       : tab === "announcements"
-      ? "Announcements"
-      : tab === "announcement-create"
-      ? "Create Announcement"
-      : tab === "users"
-      ? "Users"
-      : "Create User";
+        ? "Announcements"
+        : tab === "announcement-create"
+          ? "Create Announcement"
+          : tab === "users"
+            ? "Users"
+            : "Create User";
 
   return (
     <div className="app-shell">
@@ -684,7 +697,7 @@ function AdminApp() {
               onClick={async () => {
                 try {
                   await signOut();
-                } catch {}
+                } catch { }
               }}
             >
               Logout
